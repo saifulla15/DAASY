@@ -1,0 +1,349 @@
+
+
+Exp.				 
+Write and execute C program to blink LEDs using software delay routine in LPC2148 kit
+Date:
+
+Aim: To write and execute a C program to blink LEDs using software delay routine in LPC 2148 kit
+Apparatus Required:
+	Keil uVision5 Software
+	Philips Flah Programmer
+	LPC 2148 kit
+Program:
+#include "lpc214x.h"
+
+void delay (unsigned int k); 	
+
+void main(void)
+{
+IODIR0 = 0xFFFFFFFF; //Configure Port0 as output Port
+PINSEL0 = 0;   		//Configure Port0 as General Purpose IO
+while(1)
+{
+IOSET0 = 0x0000ff00;  //Set P0.15-P0.8 to '1' 
+delay(1000);          //1 sec Delay
+IOCLR0 = 0x0000ff00;  //Set P0.15-P0.8 to '0'
+delay(1000);          //1 Sec Delay
+}
+}
+//Delay Program
+//Input - delay value in milli seconds
+void delay(unsigned int k)  	
+{
+	unsigned int i,j;
+	for (j=0; j<k; j++)
+		for(i = 0; i<=800; i++);
+}
+Output: LEDs P0.15-P0.8 are blinking
+Result:
+Thus the C program to blink LEDs using software delay routine was written and executed in LPC 2148 kit
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Exp.				 
+Write and execute C program to read the switch and display in the LEDs using LPC2148 kit
+Date:
+Aim:  To write and execute C program to read the switch and display in the LEDs using LPC2148 kit
+
+Apparatus Required:
+	Keil uVision5 Software
+	Philips Flah Programmer
+	LPC 2148 kit
+Program:
+#include "lpc214x.h"
+
+int main(void)
+{
+  unsigned int sw_sts;
+
+  IODIR0 = 0x0000ff00; //Configure Port0 
+	PINSEL0 = 0;   		//Configure Port0 as General Purose IO
+while(1)
+{
+  sw_sts = IOPIN0;	
+  IOSET0 = 0x0000ff00;   //Set P0.15-P0.8 to '1' 
+  IOCLR0 = sw_sts >> 8;  //Set P0.15-P0.8 to '0'
+}
+}
+
+Output: LEDs P0.15-P0.08 displayed the bits entered in the switches
+
+Result: 
+Thus  C program was written read the switch and display in the LEDs using LPC2148 kit
+
+
+Exp.				 
+Write and execute C program to display a number in seven segment LED in LPC2148 kit
+Date:
+Aim: To write and execute C program to display a number in seven segment LED in LPC2148 kit
+Apparatus Required:
+	Keil uVision5 Software
+	Philips Flah Programmer
+	LPC 2148 kit
+Program:
+//SEVEN SEGMENT LED DISPLAY INTERFACE IN C
+/* Program to Count 0-9 and Display it in 7 segment Display (MUX) DS4 
+ * Display Select DS3 ==> "P0.13"  Enable --> '0',  Disable --> '1'
+ * Display Select DS4 ==> "P0.12"  Enable --> '0',  Disable --> '1' 
+ */
+
+/* Segment Connection Display 1 & 2	  Enable --> '1',  Disable --> '0'
+ *--------------------------------------------------------------------
+ * MSB                                                      LSB
+ *   Dp     G      F      E       D      C      B      A
+ * P0.23  P0.22  P0.21  P0.20   P0.19  P0.18  P0.17  P0.16  
+ *   0      0      0      0       0      1      1     0   --> 6 => '1'
+ *---------------------------------------------------------------------*/
+
+#include <LPC214X.H>
+
+#define DS3   1<<13		// P0.13
+#define DS4   1<<12		// P0.12
+#define SEG_CODE 0xFF<<16     // Segment Data from P0.16 to P0.23
+
+unsigned char const seg_dat[]={0x3F, 0x6, 0x5B, 0x4F, 0x66, 0x6D, 0x7D, 0x7, 0x7F, 0x67};
+
+
+void delayms(int n)
+{
+int i,j;
+for(i=0;i<n;i++)
+ {for(j=0;j<5035;j++)   //5035 for 60Mhz ** 1007 for 12Mhz
+    {;}
+ }
+}
+
+int main (void)
+{
+  unsigned char count;
+ 
+PINSEL0 = 0; // Configure Port0 as General Purpose IO => P0.0  to P0.15
+PINSEL1 = 0; // Configure Port0 as General Purpose IO => P0.16 to P0.31
+
+IODIR0 = SEG_CODE | DS3 | DS4; //Configure Segment data & Select signal as output
+
+IOSET0 = SEG_CODE | DS3 ;  //Disable DS3 display
+IOCLR0 = DS4;  //Enable DS4 Display
+
+count  = 0; //Initialize Count
+
+//Display Count value
+IOCLR0 = SEG_CODE;
+IOSET0 = seg_dat[count]<<16;
+
+while(1)
+ {
+   	delayms(1000); //1 sec delay
+    count++;              //Increment count
+    if(count>9) count=0;  //Limit 0-9
+
+    //Display Count value
+    IOCLR0 = SEG_CODE;
+    IOSET0 = seg_dat[count]<<16;
+	
+   }
+
+}
+Output: 7-Segment display counting from 0 to 9
+Result:
+Thus C program, was written and executed to display a number in seven segment LED in LPC2148 kit
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Exp.				 
+Write and execute C program for serial transmission and reception using on-chip UART in LPC2148 kit.
+Date:
+Aim: To write and execute C program for serial transmission and reception using on-chip UART in LPC2148 kit.
+Apparatus Required:
+	Keil uVision5 Software
+	Philips Flah Programmer
+	LPC 2148 kit
+Program:
+#include <lpc214x.h>
+
+void UART0_Init(void)
+{
+ PLL0CON = 0;
+ PLL0FEED=0xAA;
+ PLL0FEED=0x55;
+ VPBDIV = 1;
+ // Fpclk = 12.000.000 MHz
+ // DLM,DLH = Fpclk / (19200*16) = 39 = 0x27
+ PINSEL0 |= 0x5; // Select UART0 RXD/TXD
+ U0FCR = 0; // Disable FIFO's
+ U0LCR = 0x83; // 8N1, enable Divisor latch bit
+ U0DLL = 0x27; // baud rate fixed to 19200 @ PCLK = 12 Mhz
+ U0DLM = 0;
+ U0LCR = 3; // Disable Divisor latch bit
+}
+/*------------------------------------------------------------------*/
+/* Function to send one char. to Serial Port */
+void sout(unsigned char dat1)
+{
+ while(!(U0LSR & 0x20));//Wait for Tx Buffer Empty 
+ U0THR = dat1;   //Send to UART1
+}
+/*-------------------------------------------------------*/
+
+int main (void)
+{  int dat; 
+   UART0_Init();
+ do
+  { 
+   if(U0LSR & 1)  /* Check for RDR (Receiver Data Ready)command */	
+    {
+       dat = U0RBR;// Receive Data from Srial Port
+       sout(dat);  // Send Data to Srial Port
+	}
+   }while(1);
+}
+
+Output: Data was serially transmitted
+Result:
+Thus a C program was Written and executed for serial transmission and reception using on-chip UART in LPC2148 kit.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Exp.				 
+Write and execute C program for accessing an internal ADC and display the binary output in LEDS in LPC2148 kit
+Date:
+Aim: To write and execute C program for accessing an internal ADC and display the binary output in LEDS in LPC2148 kit.
+Apparatus Required:
+	Keil uVision5 Software
+	Philips Flah Programmer
+	LPC 2148 kit
+Program:
+#include <LPC214X.H>
+
+#define LEDS  0xFF<<8   //LED => P0.8 to P0.15
+
+/////////////////////////////////////////
+/*--- ADC Signal Declaration */
+/////////////////////////////////////////
+#define AD0_1 1<< 24
+#define CLK_DIV 1<<8
+#define PDN 1<<21
+#define SOC 1<<24
+#define BURST 1<<16
+#define DONE 1<<31
+
+/*-----------------------------------------------------------*/
+//Delay Program
+//Input - delay value in milli seconds
+void delay(unsigned int k)  	
+{
+	unsigned int i,j;
+	for (j=0; j<k; j++)
+		for(i = 0; i<=800; i++);
+}
+/*-----------------------------------------------------------*/
+void adc_init()
+{
+unsigned long int ADC_CH;
+
+	 ADC_CH = 0 | 1 << 1; //Channel AD0.1             
+     AD0CR = SOC | PDN | CLK_DIV | ADC_CH | BURST ; 
+}
+/*-----------------------------------------------------------*/
+unsigned int adc_read( unsigned char channel) 
+{
+	  unsigned int aval;
+	  unsigned long int val;
+   
+     if (channel == 1) val = AD0DR1;
+     else if (channel == 2) val = AD0DR2;
+     else if (channel == 3) val = AD0DR3;
+     
+     val = val >> 6;
+     val = val & 0x3FF; 
+     aval = val;
+     return (aval);
+}	
+/*-----------------------------------------------------------*/ 
+//////////////////////////
+/*----Main Program------*/
+//////////////////////////
+int main(void)
+{
+unsigned int tp1;
+
+  IODIR0   = LEDS; //Configure Port0 as output Port
+  PINSEL0 = 0; //Configure Port0 as General Purpose IO  
+  PINSEL1 = 0 | AD0_1; // Enable AD0.1
+ 
+    adc_init(); //Initialise on-chip ADC
+     
+ do
+  {  tp1 = adc_read(1); // Channel AD0 0.1
+		 tp1 = tp1 >> 2;  // ADC 10 bit But LED 8bit, Truncate lsb 2 bits  
+     IOSET0 =  LEDS;  //Switch OFF all LEDS
+     IOCLR0 = tp1 << 8;  //Set VAlue
+     delay(1000);
+	 
+	 
+  }while(1);   
+  
+}
+
+
+
+Output: The Potentiometer knob was adjusted to generate Analog input and Digital display is observed
+Result: 
+Thus C program was Written and executed for accessing an internal ADC and display the binary output in LEDS in LPC2148 kit.
+
